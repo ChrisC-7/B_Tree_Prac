@@ -1,5 +1,14 @@
+import java.util.Arrays;
+
 public class BTree {
     private Node root;
+
+
+    public Node search(int key) {
+        return root.search(key);
+
+    }
+
 
 
 
@@ -68,6 +77,33 @@ public class BTree {
 
         public boolean isLeaf() {
             return isLeaf;
+        }
+
+        public Node search (int key){
+            if(isLeaf()){
+                if(indexOf(key) > 0) return this;
+                else return null;
+            }
+            else {
+                return getChild(chindIndexOf(key)).search(key);
+
+            }
+        }
+
+        // find the index of the key in our keys
+        public int indexOf(int key) {
+            return Arrays.binarySearch(keys, key);
+        }
+
+        public int chindIndexOf(int key) {
+            for(int i = 0; i < size; i++){
+                if(key < keys[i]) return i;
+            }
+            return size+1;
+        }
+
+        public Node getChild(int index) {
+            return children[index];
         }
     }
 }
