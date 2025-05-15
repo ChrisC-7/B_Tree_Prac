@@ -3,23 +3,16 @@ import java.util.Arrays;
 public class BTree {
     private final int order;
     private Node root;
-    private HelperStruct extra;
+    private SplitResult extra;
+
+
+    public BTree(){
+        this(3);
+    }
 
     public BTree(int order) {
         this.order = order;
-    }
-
-    public Node getRoot() {
-        return root;
-    }
-
-
-    public void setRoot(Node root) {
-        this.root = root;
-    }
-
-    public int getOrder() {
-        return order;
+        this.root = null;
     }
 
     // search node contains the key
@@ -27,29 +20,22 @@ public class BTree {
         return root.search(key);
     }
 
-    public void print(){
-
-    }
-
     public void insert(int key){
         if(root == null){
             root = new Node(order);
             root.insertNotFullKey(key);
         } else{
-            Node current = root;
-            while (current.isLeaf());
+            if(root.isLeaf()){
+                root.insertKey(key, extra);
+            } else{
+                Node current = root.getChild(root.childIndexOf(key));
 
+                current.insertKey(key,extra);
+                checkSplit(root, key, i+1);
+            }
+
+            // check the root of the tree if the tree need a new root
+            checkRoot(root);
         }
-
-
-
-
-
-
     }
-
-
-
-
-
 }
