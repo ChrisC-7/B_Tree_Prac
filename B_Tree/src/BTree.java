@@ -3,7 +3,6 @@ import java.util.Arrays;
 public class BTree {
     private final int order;
     private Node root;
-    private SplitResult extra;
 
 
     public BTree(){
@@ -23,19 +22,33 @@ public class BTree {
     public void insert(int key){
         if(root == null){
             root = new Node(order);
-            root.insertNotFullKey(key);
-        } else{
-            if(root.isLeaf()){
-                root.insertKey(key, extra);
-            } else{
-                Node current = root.getChild(root.childIndexOf(key));
-
-                current.insertKey(key,extra);
-                checkSplit(root, key, i+1);
-            }
-
-            // check the root of the tree if the tree need a new root
-            checkRoot(root);
+            root.insertNotOverflowKey(key);
+            return;
         }
+
+        SplitResult result = insertRecursive(root, key);
+
+        if(result != null){
+            Node newRoot = new Node(order, false);
+            newRoot.setChildren(root, 0);
+            newRoot.setChildren(result.getExtraNode(), 1);
+            newRoot.insertNotOverflowKey(result.getExtraKey());
+            root = newRoot;
+        }
+    }
+
+    private SplitResult insertRecursive(Node node, int key){
+        if (node.isLeaf()) {
+            node.insertNotOverflowKey(key);
+        } else {
+            SplitResult result = insertRecursive(node.getChild(node.childIndexOf(key)), key);
+            if (result != null) {
+                node.insertNotOverflowKey(result.getExtraKey());
+                node.setChildren(result.getExtraNode(), node.childIndexOf(key));
+            }
+        }
+
+        if (node.isOverflow()) return node.split();
+        return null;
     }
 }
