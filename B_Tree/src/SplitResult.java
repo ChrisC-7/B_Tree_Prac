@@ -1,43 +1,81 @@
 public class SplitResult {
-    private int extraKey;
-    private Node extraNode;
-    private boolean isValid;
+    private int middleKey;
+    private Node rightNode;
 
+    /***
+     *  Constructs an empty SplitResult with no key and null node, marked invalid.
+     */
     public SplitResult() {
-        this(0,null,false);
+        this(0,null);
     }
 
-    public SplitResult(int extraKey, Node extraNode, boolean Valid) {
-        this.extraKey = extraKey;
-        this.extraNode = extraNode;
-        this.isValid = Valid;
+    /***
+     * Constructs a SplitResult with the given middle key, right node, and validity.
+     *
+     * @param middleKey - the key to move up to the parent
+     * @param rightNode - the new right node created after splitting
+     */
+    public SplitResult(int middleKey, Node rightNode) {
+        this.middleKey = middleKey;
+        this.rightNode = rightNode;
     }
 
-    public void setExtraKey(int extraKey) {
-        this.extraKey = extraKey;
+    /***
+     * Sets the middle key of the split result.
+     * @param middleKey - the key to move up to the parent
+     */
+    public void setMiddleKey(int middleKey) {
+        this.middleKey = middleKey;
     }
 
-    public void setExtraNode(Node extraNode) {
-        this.extraNode = extraNode;
+    /***
+     * Sets the right node of the split result.
+     *
+     * @param rightNode - the new right Node
+     */
+    public void setRightNode(Node rightNode) {
+        this.rightNode = rightNode;
     }
 
-    public int getExtraKey() {
-        return extraKey;
+    /***
+     * Returns the middle key from the split.
+     *
+     * @return the middle key
+     */
+    public int getMiddleKey() {
+        return middleKey;
     }
 
-    public Node getExtraNode() {
-        return extraNode;
+    /***
+     * Returns the right node from the split
+     *
+     * @return the right child Node
+     */
+    public Node getRightNode() {
+        return rightNode;
     }
 
+    /***
+     * Returns whether the split result is empty.
+     * A result is considered empty if the right node is null.
+     *
+     * @return {@code true} if empty <br>
+     *         {@code false} otherwise
+     */
     public boolean checkEmpty(){
-        return this.extraNode == null;
+        return this.rightNode == null;
     }
 
-    public void setValid(boolean valid) {
-        isValid = valid;
+    /***
+     * Returns a human-readable string representing the split result,
+     * useful for debugging purposes.
+     *
+     * @return a string representation of the split result
+     */
+    @Override
+    public String toString() {
+        return !checkEmpty() ? "SplitResult{key=" + middleKey + ", rightNode.size=" + (rightNode != null ? rightNode.getSize() : "null") + "}" : "EmptySplit";
     }
 
-    public boolean isValid() {
-        return isValid;
-    }
+
 }
