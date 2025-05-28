@@ -1,16 +1,18 @@
+package btree;
+
 public class SplitResult {
     private int middleKey;
     private Node rightNode;
 
     /***
-     *  Constructs an empty SplitResult with no key and null node, marked invalid.
+     *  Constructs an empty btree.SplitResult with no key and null node, marked invalid.
      */
     public SplitResult() {
         this(0,null);
     }
 
     /***
-     * Constructs a SplitResult with the given middle key, right node, and validity.
+     * Constructs a btree.SplitResult with the given middle key, right node, and validity.
      *
      * @param middleKey - the key to move up to the parent
      * @param rightNode - the new right node created after splitting
@@ -31,7 +33,7 @@ public class SplitResult {
     /***
      * Sets the right node of the split result.
      *
-     * @param rightNode - the new right Node
+     * @param rightNode - the new right btree.Node
      */
     public void setRightNode(Node rightNode) {
         this.rightNode = rightNode;
@@ -49,7 +51,7 @@ public class SplitResult {
     /***
      * Returns the right node from the split
      *
-     * @return the right child Node
+     * @return the right child btree.Node
      */
     public Node getRightNode() {
         return rightNode;
@@ -74,7 +76,7 @@ public class SplitResult {
      */
     @Override
     public String toString() {
-        return !checkEmpty() ? "SplitResult{key=" + middleKey + ", rightNode.size=" + (rightNode != null ? rightNode.getSize() : "null") + "}" : "EmptySplit";
+        return !checkEmpty() ? "btree.SplitResult{key=" + middleKey + ", rightNode.size=" + (rightNode != null ? rightNode.getSize() : "null") + "}" : "EmptySplit";
     }
 
 

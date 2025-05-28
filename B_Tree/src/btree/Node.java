@@ -1,6 +1,10 @@
+package btree;
+
 import java.util.Arrays;
 
 public class Node {
+    public static final int DEFAULT_ORDER = 3;
+
     private final int order;
     private int[] keys;
     private Node[] children;
@@ -9,14 +13,14 @@ public class Node {
 
 
     /***
-     * Constructs a default B-Tree Node with a default order of 3.
+     * Constructs a default B-Tree btree.Node with a default order of 3.
      */
     public Node() {
-        this(3);
+        this(DEFAULT_ORDER);
     }
 
     /***
-     * Constructs a B-Tree Node
+     * Constructs a B-Tree btree.Node
      *
      * @param order - the maximum number of children per node(minimum is 3)
      */
@@ -43,6 +47,9 @@ public class Node {
      * @param index - the index at which to set the child
      */
     public void setChild(Node childNode, int index) {
+        if (index < 0 || index >= children.length) {
+            throw new IndexOutOfBoundsException("Invalid child index for setting: " + index);
+        }
         this.children[index] = childNode;
     }
 
@@ -110,7 +117,12 @@ public class Node {
      * @param index - the index of the keys array
      * @return the key value at the index
      */
-    public int getKey(int index) {return this.keys[index];}
+    public int getKey(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Invalid key index: " + index);
+        }
+        return this.keys[index];
+    }
 
 
     /**
@@ -133,6 +145,9 @@ public class Node {
      * @return the child node
      */
     public Node getChild(int index) {
+        if (index < 0 || index >= children.length) {
+            throw new IndexOutOfBoundsException("Invalid child index: " + index);
+        }
         return children[index];
     }
 
@@ -143,14 +158,28 @@ public class Node {
      *
      * @param key - the key to insert into the array
      */
-    public void insertNotOverflowKey(int key) {
+    public void insertNotOverflowNode(int key) {
         int index = 0;
         while (index < size && keys[index] < key ) {
             index++;
         }
+
+        // Check for duplicate key
+        if(index < size && keys[index] == key) {
+            throw new IllegalArgumentException("Duplicate key insertion is not allowed: " + key);
+        }
+
+        // Shift keys and children to make room
         for (int i = size; i > index; i--) {
             keys[i] = keys[i - 1];
         }
+
+        if (!isLeaf()) {
+            for (int i = size; i >= index + 1; i--) {
+                children[i + 1] = children[i];
+            }
+        }
+
         keys[index] = key;
         size++;
     }
@@ -165,23 +194,28 @@ public class Node {
      */
     public SplitResult split(){
         int mid = this.size / 2;
-        Node right = new Node(order, this.isLeaf);
+        int middleKey = keys[mid];
 
-        // move the right key and childNode to the new Node
+
+        Node right = new Node(order, isLeaf());
+
+        // move the right key and childNode to the new btree.Node
         for(int i = mid + 1; i < this.size; i++) {
-            right.keys[i-mid-1] = this.keys[i];
+            right.keys[i - (mid + 1)] = this.keys[i];
             this.keys[i] = 0;
             right.size++;
         }
-        if(!isLeaf()){
-            for(int i = mid + 1; i <= this.size; i++) {
-                right.children[i - mid-1] = this.children[i];
-                this.children[i] = null;
+        if(!isLeaf()) {
+            for (int i = mid + 1; i <= this.size; i++) {
+                int rightChildIndex = i - (mid + 1);
+                if (rightChildIndex < right.children.length) {
+                    right.children[rightChildIndex] = this.children[i];
+                    this.children[i] = null;
+                }
             }
         }
-        int middleKey = keys[mid];
+        this.size = mid;
         this.keys[mid] = 0;
-        size = mid;
         return new SplitResult(middleKey, right);
     }
 }

@@ -1,3 +1,5 @@
+package btree;
+
 public class BTree {
     private final int order;
     private Node root;
@@ -45,7 +47,7 @@ public class BTree {
         if(search(key) != null) return;
         if(root == null){
             root = new Node(order);
-            root.insertNotOverflowKey(key);
+            root.insertNotOverflowNode(key);
             return;
         }
 
@@ -55,7 +57,7 @@ public class BTree {
             Node newRoot = new Node(order, false);
             newRoot.setChild(root, 0);
             newRoot.setChild(result.getRightNode(), 1);
-            newRoot.insertNotOverflowKey(result.getMiddleKey());
+            newRoot.insertNotOverflowNode(result.getMiddleKey());
             root = newRoot;
         }
     }
@@ -70,12 +72,12 @@ public class BTree {
      */
     private SplitResult insertRecursive(Node node, int key){
         if (node.isLeaf()) {
-            node.insertNotOverflowKey(key);
+            node.insertNotOverflowNode(key);
         } else {
             int childIndex = node.childIndexOf(key);
             SplitResult result = insertRecursive(node.getChild(childIndex), key);
             if (result != null) {
-                node.insertNotOverflowKey(result.getMiddleKey());
+                node.insertNotOverflowNode(result.getMiddleKey());
                 node.setChild(result.getRightNode(), childIndex + 1 );
             }
         }
