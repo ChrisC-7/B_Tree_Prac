@@ -23,7 +23,7 @@ public class BTree {
     }
 
     /***
-     * Searches for the node containing he given key
+     * Searches for the node containing the given key
      *
      * @param key - the key we are searching for
      * @return the node contains the key, or null if not found
@@ -84,5 +84,22 @@ public class BTree {
 
         if (node.isOverflow()) return node.split();
         return null;
+    }
+
+    public void delete(int key) {
+        if (root == null) {
+            throw  new IllegalArgumentException("Tree is empty, Can't delete");
+        }
+
+        root.delete(key);
+
+        if (root.getSize() == 0 && !root.isLeaf()) {
+            root = root.getChild(0);
+        }
+
+        if (root != null && root.getSize() == 0 && root.isLeaf()) {
+            root = null;
+        }
+
     }
 }

@@ -40,6 +40,10 @@ public class Node {
         this.size = size;
     }
 
+    public int getLeastSize() {
+        return (this.order + 1 )/2 - 1;
+    }
+
     /***
      * Set the child node at the specified index in the children node array
      *
@@ -102,7 +106,7 @@ public class Node {
     }
 
     /***
-     * Performs a binary search for the spedified key in the keys array
+     * Performs a binary search for the specified key in the keys array
      *
      * @param key - the key to find
      * @return the index of the key if found, otherwise a negative number
@@ -217,5 +221,164 @@ public class Node {
         this.size = mid;
         this.keys[mid] = 0;
         return new SplitResult(middleKey, right);
+    }
+
+    /***
+     * Gets the largest key from the left child tree
+     * @return the largest key
+     */
+    public int getPredecessor(int index){
+        Node cur = this.getChild(index);
+        while (!cur.isLeaf()) cur = cur.getChild(cur.getChildren().length - 1);
+        return cur.getKey(cur.size - 1);
+    }
+
+    /***
+     * Gets the smallest key from the right child tree
+     * @return the largest key
+     */
+    public int getSuccessor(int index){
+        Node cur = this.getChild(index + 1);
+        while (!cur.isLeaf()) cur = cur.getChild(0);
+        return cur.getKey(0);
+    }
+
+
+    public void delete(int key) {
+        if(this.contains(key)) {
+            if(isLeaf()) deleteLeafNode(key);
+            else deleteNonLeafNode(key);
+        }
+        else {
+            int index = this.childIndexOf(key);
+            boolean atLastChild = (index == this.size);
+
+            if (children[index].getSize() == getLeastSize()) {
+                fill(index);
+            }
+
+            if (atLastChild) {
+                children[index - 1].delete(key);
+            } else {
+                children[index].delete(key);
+            }
+        }
+
+    }
+
+    public void deleteLeafNode(int key) {
+        int index = this.indexOf(key);
+        for (int i = index; i < this.getSize() - 1; i++) {
+            this.keys[i] = this.getKey(i+1);
+        }
+        this.keys[this.size - 1] = 0;
+        this.size--;
+    }
+
+    public void deleteNonLeafNode(int key) {
+        int index = this.indexOf(key);
+        if(this.getChild(index).getSize() >= this.order/2 + 1) {
+            int predecessor = this.getPredecessor(index);
+            this.keys[index] = predecessor;
+            this.getChild(index).delete(predecessor);
+        }
+        else if(this.getChild(index + 1).getSize() >= this.order/2 + 1) {
+            int successor = this.getSuccessor(index);
+            this.keys[index] = successor;
+            this.getChild(index + 1).delete(successor);
+        }
+        else{
+            this.merge(index);
+            this.getChild(index).delete(key);
+        }
+    }
+
+    private void fill(int index) {
+        if(index > 0 && children[index - 1].getSize() > getLeastSize()) {
+            borrowFromPrev(index);
+        }else if (index < size && children[index + 1].getSize() > getLeastSize()) {
+            borrowFromNext(index);
+        }else{
+            if(index < size){
+                merge(index);
+            }else merge(index - 1);
+        }
+    }
+
+    private void borrowFromPrev(int index) {
+        Node child = this.getChild(index);
+        Node sibling = child.getChild(index - 1);
+
+        for (int i = child.size - 1; i >= 0; i--){
+            child.keys[i + 1] = child.keys[i];
+        }
+
+        if(!child.isLeaf()) {
+            for(int i = child.size; i >= 0; i--){
+                child.children[i + 1] = child.children[i];
+            }
+        }
+
+        child.keys[0] = keys[index - 1];
+        if(!child.isLeaf()) {
+            child.children[0] = sibling.children[sibling.size];
+        }
+
+        keys[index - 1] = sibling.keys[sibling.size - 1];
+
+        child.size++;
+        sibling.size--;
+    }
+
+    private void borrowFromNext(int index) {
+        Node child = this.getChild(index);
+        Node sibling = child.getChild(index + 1);
+
+        child.keys[child.size] = keys[index];
+        if (!child.isLeaf()) {
+            child.children[child.size + 1] = sibling.children[0];
+        }
+
+        keys[index] = sibling.keys[0];
+
+        for (int i = 1; i < sibling.size; i++) {
+            sibling.keys[i - 1] = sibling.keys[i];
+        }
+        if (!sibling.isLeaf()) {
+            for (int i = 1; i <= sibling.size; i++) {
+                sibling.children[i - 1] = sibling.children[i];
+            }
+        }
+
+        child.size++;
+        sibling.size--;
+
+    }
+
+
+    public void merge(int index) {
+        Node left = children[index];
+        Node right = children[index + 1];
+
+        left.keys[getLeastSize()] = keys[index];
+
+        for (int i = 0; i < right.size; i++) {
+            left.keys[i + getLeastSize() + 1] = right.keys[i];
+        }
+
+        if (!left.isLeaf()) {
+            for (int i = 0; i <= right.size; i++) {
+                left.children[i + getLeastSize() + 1] = right.children[i];
+            }
+        }
+
+        for (int i = index + 1; i < size; i++) {
+            keys[i - 1] = keys[i];
+            children[i] = children[i + 1];
+        }
+
+        size--;
+        left.size += right.size + 1;
+        children[size + 1] = null;
     }
 }

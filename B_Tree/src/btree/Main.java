@@ -11,6 +11,7 @@ public class Main {
             bt.insert(key);
         }
 
+        bt.delete(1);
         System.out.println("Hello");
 
 
